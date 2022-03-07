@@ -119,3 +119,70 @@ impl Trie {
     // TODO: walk -> Takes a fn at each step with whether to descend or not
 
 }
+
+pub mod io {
+
+    use crate::{ Trie, Node };
+
+    use std::fs::File;
+    use std::path::Path;
+    use std::io::{ self, BufRead };
+
+    pub fn from_wordlist<P: AsRef<Path>>( path: P ) -> Result<Trie, io::Error> {
+
+        let f: File = File::open( path )?;
+        let lines: io::Lines<io::BufReader<File>> = io::BufReader::new( f ).lines( );
+
+        let mut t: Trie = Trie::new( );
+
+        for line in lines {
+
+            if let Ok( word ) = line {
+
+                t.add( &word );
+
+            }
+
+        }
+
+        Ok( t )
+
+    }
+
+    pub fn write_text<P: AsRef<Path>>( t: &Trie, path: P ) -> Result<(), io::Error> {
+
+        let f: File = File::create( path )?;
+        let mut w: io::BufWriter<File> = io::BufWriter::new( f );
+
+        t.write( &mut w )
+
+    }
+
+    impl Trie {
+
+        fn write<W: io::Write>( &self, w: &mut W ) -> Result<(), io::Error> {
+
+            self.root.write( w )?;
+            w.flush( )
+
+        }
+
+    }
+
+    impl Node {
+
+        fn write<W: io::Write>( &self, w: &mut W ) -> Result<(), io::Error> {
+
+            write!( w, "{}\x1F{}\x1F{}\x1F{}", self.c, self.used, self.eowc, self.children.len( ) )?;
+
+            for child in self.children {
+
+                child.write( w )?
+
+            }
+
+        }
+
+    }
+
+}
