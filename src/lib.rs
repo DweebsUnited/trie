@@ -95,6 +95,33 @@ impl Node {
 
     }
 
+    // Walking functions!
+    // Private, but I don't realy like having to specify the add value every time...
+    fn walk<P: Fn( &str, u64, u64 ) -> bool>( &self, s: &mut String, pred: &P, add: bool ) {
+
+        if add {
+
+            s.push( self.c );
+
+            if ! pred( &s, self.used, self.eowc ) {
+                s.pop( );
+                return;
+            }
+
+        }
+
+        for n in &self.children {
+
+            n.walk( s, pred, true );
+
+        }
+
+        if add {
+            s.pop( );
+        }
+
+    }
+
 }
 
 impl Trie {
@@ -120,7 +147,12 @@ impl Trie {
 
     }
 
-    // TODO: walk -> Takes a fn at each step with whether to descend or not
+    pub fn walk<P: Fn( &str, u64, u64 ) -> bool>( &self, pred: P ) {
+
+        let mut word: String = String::new( );
+        self.root.walk( &mut word, &pred, false );
+
+    }
 
 }
 
