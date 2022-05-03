@@ -96,8 +96,8 @@ impl Node {
     }
 
     // Walking functions!
-    // Private, but I don't realy like having to specify the add value every time...
-    fn walk<P: Fn( &str, u64, u64 ) -> bool>( &self, s: &mut String, pred: &P, add: bool ) {
+    // Private, but I don't really like having to specify the add value every time...
+    fn walk<P: FnMut( &str, u64, u64 ) -> bool>( &self, s: &mut String, pred: &mut P, add: bool ) {
 
         if add {
 
@@ -147,10 +147,10 @@ impl Trie {
 
     }
 
-    pub fn walk<P: Fn( &str, u64, u64 ) -> bool>( &self, pred: P ) {
+    pub fn walk<P: FnMut( &str, u64, u64 ) -> bool>( &self, pred: &mut P ) {
 
         let mut word: String = String::new( );
-        self.root.walk( &mut word, &pred, false );
+        self.root.walk( &mut word, pred, false );
 
     }
 
